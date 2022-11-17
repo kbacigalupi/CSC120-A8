@@ -10,7 +10,7 @@ Listed below are various aspects of the assignment.  When you turn in your work,
 
 ## Assignment Points:
 
-_____ 10 pts: The class meaningfully implements each of the methods in described in the `Contract` interface:
+___YES__ 10 pts: The class meaningfully implements each of the methods in described in the `Contract` interface:
 
       _____ `void grab(String item);`
       _____ `String drop(String item);`
@@ -26,7 +26,7 @@ _____ 10 pts: The class meaningfully implements each of the methods in described
 
 ## General Items:
 
-_____ 4 pts: Programs compile without errors or warnings
+___YES__ 4 pts: Programs compile without errors or warnings
 
 _____ 2 pts: Executes fully & consistently without crashing (exception/freeze)
 
