@@ -55,12 +55,11 @@ public class Sim implements Contract{
         if (item.equals(check)) {
             haveItems.add(item);
             this.map.remove(this.x, this.y);
+            this.printMap();
             System.out.println(item + " is in bag");
             return;
         }
         System.out.println("There is no object to pick up-" + item);
-
-        
     }
 
     /*Places an item on the map at the location of the sim (if it is in the bag/hasItems() dictionary) 
@@ -75,6 +74,7 @@ public class Sim implements Contract{
             return item + " is not in your bag";
         }
         haveItems.remove(item);
+        this.printMap();
         return(item + " has been dropped");
     }
 
@@ -94,14 +94,13 @@ public class Sim implements Contract{
      * @param a string emoji that is to be used
     */
     public void use(String item) {
-        if (items.contains(item)) {
-            System.out.println("Using" + item + "....");
+        if (haveItems.contains(item)) {
+            System.out.println("Using " + item + "....");
+            System.out.println("Check back later for what your sim can do with the item");
         }
         else {
             System.out.println("Cannot use item-you do not have it in your bag");
         }
-        
-        
     }
 
     /*Moves the sim one step up, down, right, or left
@@ -127,7 +126,7 @@ public class Sim implements Contract{
             System.out.println("Please enter a valid direction");
             return false;
         }
-        System.out.println(this.x + " " + this.y);
+        this.printMap();
         return true;
     }
 
@@ -143,6 +142,7 @@ public class Sim implements Contract{
         }
         this.x = y;
         this.y = x;
+        this.printMap();
         return true;
     }
     
@@ -153,6 +153,7 @@ public class Sim implements Contract{
         for (int i = 0; i<this.haveItems.size(); i++) {
             System.out.print(this.haveItems.get(i) + ", ");
         }
+        System.out.println(" ");
     }
 
     /*Decreases the size of the map that the guy stands on by one row and one column
@@ -163,7 +164,7 @@ public class Sim implements Contract{
         if (this.size >4) {
             this.size -= 1;
             map.shrink();
-            //this.printMap();
+            this.printMap();
             return size;
         }
         else {
@@ -179,7 +180,7 @@ public class Sim implements Contract{
     public Number grow() {
         this.size += 1;
         map.grow();
-        //this.printMap();
+        this.printMap();
         return this.size;
     }
 
@@ -273,7 +274,6 @@ public class Sim implements Contract{
         while (!command.equals("exit")) {
             System.out.println("Enter next command");
             command = myObj.nextLine();  // Read user input
-            //System.out.println(command);
             command = command.toLowerCase();
             if (command.equals("e")) { //series of if statements to test for each command
                 simOne.walk("east");
@@ -301,6 +301,13 @@ public class Sim implements Contract{
                     System.out.println("No object specified");
                   }
             }
+            else if (command.startsWith("use")) {
+                try {
+                    simOne.use(command.substring(4));
+                } catch (Exception e) {
+                    System.out.println("No object specified");
+                }
+            }
             else if(command.startsWith("fly")){
                 String[] result = command.split(" ");
                 int x = Integer.valueOf(result[1]);
@@ -324,9 +331,6 @@ public class Sim implements Contract{
             }
             else {
                 System.out.println("This is not a valid command");
-            }
-            if (!command.equals("so") && !command.equals("ex")) {
-                simOne.printMap(); //so there is no map after the list of options
             }
             simOne.lastCommand = command;
         }
