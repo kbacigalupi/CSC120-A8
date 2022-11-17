@@ -11,6 +11,7 @@ public class Sim implements Contract{
     public Hashtable<String, String> items = new Hashtable<>(); //all the items in teh game
     public Map map; //the map the Sim will move around 
     public int size;
+    public String lastCommand;
     
     /*Sim constructor
      * @param int size of the map of the game
@@ -20,12 +21,13 @@ public class Sim implements Contract{
         this.x = 0;
         this.y = 0;
         this.name = name;
+        /*The instance of map class that is associated with the person emoji*/
         this.map = new Map(10);
         this.size = 10;
         this.haveItems = new ArrayList<String>();
     }
     /*
-     * Loads all of the items into a hashtable so they can be later "examined"
+     * Loads all of the items into a hashtable so they can be later "examined" - the value is what is printed out later
      */
     public void addItems() {
         items.put("🗝", "opens a door");
@@ -43,18 +45,17 @@ public class Sim implements Contract{
      * @param item is the emoji to be added to the bag/removed from the map
      */
     public void grab(String item) {
-        System.out.println("grab ==>" + item + "<==");
+        // error checking lin System.out.println("grab ==>" + item + "<==");
         if (haveItems.contains(item)) {
             System.out.println("Item is already in bag");
             return;
         }
         String check = map.getItem(this.x, this.y);
-        System.out.println("Check ==>" + check + "<==");
+        //error checking line System.out.println("Check ==>" + check + "<==");
         if (item.equals(check)) {
             haveItems.add(item);
             this.map.remove(this.x, this.y);
-            System.out.println(item + " Is in bag");
-            this.printMap();
+            System.out.println(item + " is in bag");
             return;
         }
         System.out.println("There is no object to pick up-" + item);
@@ -62,7 +63,10 @@ public class Sim implements Contract{
         
     }
 
-    /*TBD */
+    /*Places an item on the map at the location of the sim (if it is in the bag/hasItems() dictionary) 
+     * @param item the emoji of the item that is being dropped
+     * @return's a string telling whether the map has been changed or not 
+     */
     public String drop(String item) {
         if (haveItems.contains(item)) {
             this.map.add(this.x, this.y, item);
@@ -78,15 +82,17 @@ public class Sim implements Contract{
      * @param the item that character wants to examine
     */
     public void examine(String item) {
-        if (items.contains(item)) {
+        if (haveItems.contains(item)) {
             System.out.println(item + " " + this.items.get(item));
         }
         else {
-            System.out.println("Cannot examine the item before it is picked up");
+            System.out.println("Item is not in bag");
         }
     }
 
-    /* TBD - check to see if the guy has is (ASCII with guy holding it??)*/
+    /* TBD - check to see if the guy has is (ASCII with guy holding it??)
+     * @param a string emoji that is to be used
+    */
     public void use(String item) {
         if (items.contains(item)) {
             System.out.println("Using" + item + "....");
@@ -104,11 +110,12 @@ public class Sim implements Contract{
      */
     public boolean walk(String direction) {
         direction = direction.toUpperCase();
+        //System.out.println(direction); error checking line 
         if (direction.equals("EAST")) {
             this.x += 1;
         }
         else if (direction.equals("WEST")) {
-            this.x -= 1;
+            this.x += -1;
         }
         else if (direction.equals("NORTH" )) {
             this.y += -1;
@@ -120,7 +127,7 @@ public class Sim implements Contract{
             System.out.println("Please enter a valid direction");
             return false;
         }
-        this.printMap();
+        System.out.println(this.x + " " + this.y);
         return true;
     }
 
@@ -136,14 +143,16 @@ public class Sim implements Contract{
         }
         this.x = y;
         this.y = x;
-        this.printMap();
         return true;
     }
     
     /*Tells the user that the character is resting & where they are located */
     public void rest() {
-        System.out.println("Resting....");
-        System.out.println("You are at " + this.x + "," + this.y);
+        System.out.println("You are resting at " + this.x + "," + this.y);
+        System.out.print("You have ");
+        for (int i = 0; i<this.haveItems.size(); i++) {
+            System.out.print(this.haveItems.get(i) + ", ");
+        }
     }
 
     /*Decreases the size of the map that the guy stands on by one row and one column
@@ -154,7 +163,7 @@ public class Sim implements Contract{
         if (this.size >4) {
             this.size -= 1;
             map.shrink();
-            this.printMap();
+            //this.printMap();
             return size;
         }
         else {
@@ -170,13 +179,12 @@ public class Sim implements Contract{
     public Number grow() {
         this.size += 1;
         map.grow();
-        this.printMap();
+        //this.printMap();
         return this.size;
     }
 
-    /*Shown at the beginning and  */
+    /*Shows all possible commands for the user-at the beginning and everytime the "so" command is used*/
     public void showOptions() {
-        System.out.println(this.name + " can do many things. \n Parenthesis are further explanations of a command \nAnytime you are working with an object, you must copy and paste the emoji");
         System.out.println("so (Shows the options of commands)");
         System.out.println("grab emoji (Must be on the space of the emoji)");
         System.out.println("drop emoji");
@@ -188,14 +196,54 @@ public class Sim implements Contract{
         System.out.println("grow");
         System.out.println("shrink");
         System.out.println("ex emoji (examines an object-MUST be grabbed first)");
-        System.out.println("rest");
+        System.out.println("info (shows items and location of sim)");
         System.out.println("use emoji");
         System.out.println("undo (doesn't work)");
+        System.out.println("exit (ends the game");
     }
 
     /*TBD This method is realllll hard  */
     public void undo() {
+        try {
+            if (this.lastCommand.equals("e")) {
+                this.walk("west");
+            }
+            else if (this.lastCommand.equals("w")) {
+                this.walk("east");
+            }
+            else if (this.lastCommand.equals("s")) {
+                this.walk("north");
+            }
+            else if (this.lastCommand.equals("n")) {
+                this.walk("south");
+            }
+            else if(this.lastCommand.startsWith("drop")) {
+                try {this.grab(lastCommand.substring(5));}
+                catch (Exception e) {
+                    System.out.println("Please type something in to grab");
+                }
+            }
+            else if(this.lastCommand.startsWith("grab")) {
+                try {
+                this.drop(lastCommand.substring(5));}
+                catch (Exception e) {
+                    System.out.println("Please type in something to drop");
+                }
+            }
+            else if(this.lastCommand.equals("shrink")) {
+                this.grow();
+            }
+            else if(this.lastCommand.equals("grow")){
+                this.shrink();
+            }
+            else {
+                System.out.println("Cannot undo that action at this time. Check back for improvements!");
+            }
+        } catch (Exception e) {
+        System.out.println("Cannot undo that action at this time. Check back for improvements!");
+    }
         
+
     }
 
     /*Calls the printMap() function that is in the map class-
@@ -210,7 +258,12 @@ public class Sim implements Contract{
     public static void main(String[] args) {
         /*The sim used throughout the game */
         Sim simOne = new Sim(10, "Your Sim");
+        simOne.addItems();
+        System.out.println("************************************");
+        System.out.println("              NEW GAME             ");
+        System.out.println(simOne.name + " can do many things. \nParenthesis are further explanations of a command \nAnytime you are working with an object, you must copy and paste the emoji");
         System.out.println("Welcome to Map Land! This is your map:");
+
         simOne.printMap();
 
         Scanner myObj = new Scanner(System.in);  // Create a Scanner object
@@ -222,47 +275,63 @@ public class Sim implements Contract{
             command = myObj.nextLine();  // Read user input
             //System.out.println(command);
             command = command.toLowerCase();
-            if (command.equals("east")) { //series of if statements to test for each command
+            if (command.equals("e")) { //series of if statements to test for each command
                 simOne.walk("east");
             }
-            if (command.equals("w")) {
+            else if (command.equals("w")) {
                 simOne.walk("west");
             }
-            if (command.equals("n")) {
+            else if (command.equals("n")) {
                 simOne.walk("north");
             }
-            if (command.equals("s")) {
+            else if (command.equals("s")) {
                 simOne.walk("south");
             }
-            if(command.startsWith("grab")) {
+            else if(command.startsWith("grab")) { //NEED ERROR CHECKING 
+                //try {simOne.grab(command.substring(5));}
                 simOne.grab(command.substring(5));
             }
-            if (command.startsWith("drop")) {
+            else if (command.startsWith("drop")) {
                 System.out.println(simOne.drop(command.substring(5)));
             }
-            if (command.startsWith("ex")) {
-                simOne.drop(command.substring(3));
+            else if (command.startsWith("ex")) {
+                try {
+                    simOne.examine(command.substring(3));
+                  } catch (Exception e) {
+                    System.out.println("No object specified");
+                  }
             }
-            if(command.startsWith("fly")){
+            else if(command.startsWith("fly")){
                 String[] result = command.split(" ");
                 int x = Integer.valueOf(result[1]);
                 int y = Integer.valueOf(result[2]);
                 simOne.fly(x, y);
             }
-            if (command.equals("shrink")) {
+            else if (command.equals("shrink")) {
                 simOne.shrink();
             }
-            if (command.equals("grow")) {
+            else if (command.equals("grow")) {
                 simOne.grow();
             }
-            if (command.equals("rest")) {
+            else if (command.equals("info")) {
                 simOne.rest();
             }
-            if (command.equals("so")) {
+            else if (command.equals("so")) {
                 simOne.showOptions();
             }
+            else if (command.equals("undo")) {
+                simOne.undo();
+            }
+            else {
+                System.out.println("This is not a valid command");
+            }
+            if (!command.equals("so") && !command.equals("ex")) {
+                simOne.printMap(); //so there is no map after the list of options
+            }
+            simOne.lastCommand = command;
         }
-
+        System.out.println("Thank you for playing!");
+        myObj.close();
     }
     
 }

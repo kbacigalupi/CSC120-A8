@@ -2,7 +2,7 @@ import java.util.Random;
 import java.util.List;
 import java.util.Arrays;
 
-
+/*Map class is associated with the Sim class in a one-to-one relationship right now */
 public class Map {
     String[][]map;
     int size;
@@ -72,7 +72,7 @@ public class Map {
     */
     public void add(int itemx, int itemy, String item) {
         if (map[itemx][itemy] == null) {
-            map[itemx][itemy] = item;
+            map[itemy][itemx] = item;
         }
         else {
             System.out.println("Item already exists here please choose new location");
@@ -83,6 +83,9 @@ public class Map {
      * @return the value of the array of arrays at the sim's location (an emoji or null)
      */
     public String getItem(int guyx, int guyy) {
+        if (map[guyx][guyy] == "🧍 ") {
+            return null;
+        }
         return map[guyy][guyx];
     }
 
@@ -108,12 +111,6 @@ public class Map {
             System.out.println("");
             System.out.println(" ");
                 } 
-    }
-
-    
-
-    public static void main(String[] args) {
-       
     }
 
 }
